@@ -1,20 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-nginx
+  name: api-v1
 spec:
   selector:
     matchLabels:
-      run: my-nginx
+      app: api-v1
   replicas: 2
   template:
     metadata:
       labels:
-        run: my-nginx
+        app: api-v1
     spec:
       containers:
-      - name: my-nginx
-        image: nginx
+      - name: api-v1
+        image: gcr.io/google-samples/hello-app:1.0
         ports:
-        - containerPort: 80
-
+        - containerPort: 8080

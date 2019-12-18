@@ -1,0 +1,17 @@
+
+
+######################################
+# manual setup below  can be ignored #
+kubectl get pods -n kube-system
+kubectl run web --image=gcr.io/google-samples/hello-app:1.0 --port=8080
+kubectl expose deployment web --target-port=8080 --type=NodePort
+kubectl get service web
+minikube service web --url
+kubectl apply -f google-hello-ingress.yaml 
+kubectl get ingress
+# Add ingress IP in /etc/hosts file mapping to hello-world.info  
+curl hello-world.info
+
+kubectl run web2 --image=gcr.io/google-samples/hello-app:2.0 --port=8080
+kubectl expose deployment web2 --target-port=8080 --type=NodePort
+kubectl apply -f google-hello-ingress.yaml 
