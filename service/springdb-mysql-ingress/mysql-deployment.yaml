@@ -1,30 +1,3 @@
-apiVersion: v1
-kind: Service
-metadata:
-  name: springdb-mysql
-  labels:
-    app: springdb
-spec:
-  ports:
-    - port: 3306
-  selector:
-    app: springdb
-    tier: mysql
-  clusterIP: None
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mysql-pv-claim
-  labels:
-    app: springdb
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 20Gi
----
 apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
 kind: Deployment
 metadata:
@@ -45,29 +18,32 @@ spec:
         tier: mysql
     spec:
       containers:
-      - image: mysql:5.6
+      - image: mysql:5.7
         name: mysql
         env:
-        - name: MYSQL_DATABASE
-          valueFrom:
-            secretKeyRef:
-              name: mysql-pass
-              key: databasename
-        - name: MYSQL_USER
-          valueFrom:
-            secretKeyRef:
-              name: mysql-pass
-              key: username
-        - name: MYSQL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mysql-pass
-              key: password
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
-            secretKeyRef:
-              name: mysql-pass
+            configMapKeyRef:
+              name: db-config
               key: rootpassword
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: password
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: name
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              name: db-config
+              key: user
+#            secretKeyRef:
+#              name: secret-config
+#              key: username              
         ports:
         - containerPort: 3306
           name: mysql
@@ -77,4 +53,4 @@ spec:
       volumes:
       - name: mysql-persistent-storage
         persistentVolumeClaim:
-          claimName: mysql-pv-claim
+          claimName: springdb-pvc
